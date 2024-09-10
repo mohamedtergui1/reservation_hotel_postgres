@@ -3,16 +3,14 @@ package com.hotel;
 import com.hotel.dao.ReservationRepository;
 import com.hotel.models.Reservation;
 import com.hotel.models.Room;
-import com.hotel.models.User;
+import com.hotel.models.Customer;
 import com.hotel.services.ReservationService;
 import java.sql.Date;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
         // Create a User object
-        User user = new User();
+        Customer user = new Customer();
         user.setId(1);
         user.setEmail("csa@example.com");
         user.setName("John Doe");
@@ -40,6 +38,8 @@ public class Main {
         System.out.println(reservation1.getCheckInDate());
         System.out.println(reservation1.getCheckOutDate());
         System.out.println(reservation1.getRoom().getRoomType());
+        System.out.println(reservation1.getUser().getEmail());
+
 
             //        List<Reservation> reservations = reservationService.getAllReservations();
 //        for (Reservation reservation1 : reservations) {

@@ -7,7 +7,7 @@ import java.sql.Date; // Import java.sql.Date
 public class Reservation implements GetId {
     private int id;
     private Room room;
-    private User user;
+    private Customer customer;
     private Date check_in_date; // Change to java.sql.Date
     private Date check_out_date; // Change to java.sql.Date
 
@@ -21,12 +21,12 @@ public class Reservation implements GetId {
     }
 
     // Getters and setters for user
-    public User getUser() {
-        return user;
+    public Customer getUser() {
+        return customer;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUser(Customer user) {
+        this.customer = user;
     }
 
     // Getters and setters for room

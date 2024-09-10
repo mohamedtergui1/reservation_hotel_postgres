@@ -2,13 +2,13 @@ package com.hotel.models;
 
 import com.hotel.interfaces.GetId;
 
-public class User  implements GetId {
-    private int id;
+public class Customer implements GetId {
     private String email;
     private String name;
     private String password;
+    private int id;
 
-    // Getters and setters for id
+    @Override
     public int getId() {
         return id;
     }

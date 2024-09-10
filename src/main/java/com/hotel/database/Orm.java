@@ -194,13 +194,6 @@ public abstract class Orm<T> {
                 try (ResultSet resultSet = pstmt.executeQuery()) {
                     // Check if a result is returned
                     if (resultSet.next()) {
-                        // Print the column names for debugging
-                        ResultSetMetaData metaData = resultSet.getMetaData();
-                        int columnCount = metaData.getColumnCount();
-                        System.out.println("Column names:");
-                        for (int i = 1; i <= columnCount; i++) {
-                            System.out.println(className +   "  Column " + i + ": " + metaData.getColumnName(i));
-                        }
 
                         // Use reflection to create a new instance of the class
                         Object instance = clazz.getDeclaredConstructor().newInstance();
@@ -272,76 +265,10 @@ public abstract class Orm<T> {
         }
     }
 
-
-
-
     public  Object getById(Integer id){
         return getById(id,getEntityClass().getName());
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ //generator functions for sql query <select ,insert ,delete ,update>
     private String generateSelectQuery(String table, Class<?> clazz) {
         StringBuilder sql = new StringBuilder("SELECT ");
         Field[] fields = clazz.getDeclaredFields();
