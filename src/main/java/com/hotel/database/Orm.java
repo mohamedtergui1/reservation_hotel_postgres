@@ -2,13 +2,10 @@ package com.hotel.database;
 
 import com.hotel.interfaces.GetId;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.lang.reflect.Field;
 import java.util.*;
-
-import java.sql.ResultSet;
+import java.util.Date;
 
 public abstract class Orm<T> {
     private final Connection con;
@@ -140,7 +137,7 @@ public abstract class Orm<T> {
     }
 
 
-    public ArrayList<T> all() {
+    public synchronized  ArrayList<T> all() {
         String tableName = getEntityClass().getSimpleName().toLowerCase();
         String sql = generateSelectQuery(tableName,getEntityClass());
         System.out.println(sql);
@@ -176,9 +173,10 @@ public abstract class Orm<T> {
     }
 
 
-    public Object getById(Integer id, String className) {
+
+    public synchronized  Object getById(Integer id, String className) {
         if (id == null || className == null || className.isEmpty()) {
-            throw new IllegalArgumentException("Invalid id or className");
+             System.err.println("Invalid id or className");
         }
 
         try {
@@ -196,6 +194,14 @@ public abstract class Orm<T> {
                 try (ResultSet resultSet = pstmt.executeQuery()) {
                     // Check if a result is returned
                     if (resultSet.next()) {
+                        // Print the column names for debugging
+                        ResultSetMetaData metaData = resultSet.getMetaData();
+                        int columnCount = metaData.getColumnCount();
+                        System.out.println("Column names:");
+                        for (int i = 1; i <= columnCount; i++) {
+                            System.out.println(className +   "  Column " + i + ": " + metaData.getColumnName(i));
+                        }
+
                         // Use reflection to create a new instance of the class
                         Object instance = clazz.getDeclaredConstructor().newInstance();
 
@@ -220,7 +226,6 @@ public abstract class Orm<T> {
                                     break;
                                 case "int":
                                 case "java.lang.Integer":
-                                    System.out.println("Field: " + field.getName() + " Type: " + fieldType + " Value: " + value);
                                     field.set(instance, value != null ? ((Number) value).intValue() : null);
                                     break;
                                 case "double":
@@ -239,19 +244,18 @@ public abstract class Orm<T> {
                                 case "java.lang.Boolean":
                                     field.set(instance, value != null ? ((Boolean) value) : null);
                                     break;
-                                case "java.util.Date":
-                                    System.out.println("Field: " + field.getName() + " Type: " + fieldType + " Value: " + value);
-                                    field.set(instance, value != null ? new java.util.Date(((java.sql.Date) value).getTime()) : null);
+                                case "java.sql.Date":
+                                    field.set(instance, value != null ? new java.sql.Date(((java.sql.Date) value).getTime()) : null);
                                     break;
                                 default:
-                                    System.out.println("Field: " + field.getName() + " Type: " + fieldType + " Value: " + value);
-
                                     // Handle complex types or foreign keys
                                     if (value != null) {
-//                                        Class<?> fieldTypeClass = field.getType();
-//                                        Object relatedInstance = getById((Integer) value, fieldTypeClass.getName());
-//                                        field.set(instance, relatedInstance);
+                                        Class<?> fieldTypeClass = field.getType();
+                                        Object relatedInstance = getById((Integer) value, fieldTypeClass.getName());
+                                        field.set(instance, relatedInstance);
                                     }
+                                    else
+                                        field.set(instance, null);
                                     break;
                             }
                         }
@@ -263,7 +267,7 @@ public abstract class Orm<T> {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Error during getById: " + className + " \n" + e.getMessage());
             return null; // Handle the exception as needed
         }
     }

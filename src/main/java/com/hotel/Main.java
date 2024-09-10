@@ -39,6 +39,7 @@ public class Main {
             System.out.println(reservation1.getId());
         System.out.println(reservation1.getCheckInDate());
         System.out.println(reservation1.getCheckOutDate());
+        System.out.println(reservation1.getRoom().getRoomType());
 
             //        List<Reservation> reservations = reservationService.getAllReservations();
 //        for (Reservation reservation1 : reservations) {

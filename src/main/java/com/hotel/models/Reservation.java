@@ -6,8 +6,8 @@ import java.sql.Date; // Import java.sql.Date
 
 public class Reservation implements GetId {
     private int id;
-    private User user;
     private Room room;
+    private User user;
     private Date check_in_date; // Change to java.sql.Date
     private Date check_out_date; // Change to java.sql.Date
 
