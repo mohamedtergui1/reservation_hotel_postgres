@@ -1,7 +1,6 @@
 package com.hotel.models;
 
 import com.hotel.interfaces.GetId;
-
 import java.sql.Date; // Import java.sql.Date
 
 public class Reservation implements GetId {
@@ -20,13 +19,13 @@ public class Reservation implements GetId {
         this.id = id;
     }
 
-    // Getters and setters for user
-    public Customer getUser() {
+    // Getters and setters for customer
+    public Customer getCustomer() {
         return customer;
     }
 
-    public void setUser(Customer user) {
-        this.customer = user;
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
     }
 
     // Getters and setters for room
@@ -54,5 +53,16 @@ public class Reservation implements GetId {
 
     public void setCheckOutDate(Date check_out_date) {
         this.check_out_date = check_out_date;
+    }
+
+    @Override
+    public String toString() {
+        return "Reservation{" +
+                "id=" + id +
+                ",\n room=" + (room != null ? room.toString() : "null") +
+                ",\n customer=" + (customer != null ? customer.toString() : "null") +
+                ",\n check_in_date=" + (check_in_date != null ? check_in_date.toString() : "null") +
+                ",\n check_out_date=" + (check_out_date != null ? check_out_date.toString() : "null") +
+                "}\n";
     }
 }

@@ -47,4 +47,14 @@ public class Room implements GetId {
         }
         this.price = price;
     }
+
+    @Override
+    public String toString() {
+        return "Room{" +
+                "id =" + id +
+                ", room_number = '" + room_number + '\'' +
+                ", room_type = '" + room_type + '\'' +
+                ", price = " + price +
+                "}\n";
+    }
 }

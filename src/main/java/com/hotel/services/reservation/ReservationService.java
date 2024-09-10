@@ -1,4 +1,4 @@
-package com.hotel.services;
+package com.hotel.services.reservation;
 
 import com.hotel.repositoryInterfaces.ReservationRepositoryInterface;
 import com.hotel.models.Reservation;
