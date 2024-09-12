@@ -1,10 +1,11 @@
-package com.hotel.dao;
+package com.hotel.dao.reservation;
 
 import com.hotel.database.Orm;
-import com.hotel.repositoryInterfaces.ReservationRepositoryInterface;
 import com.hotel.models.Reservation;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 
 public class ReservationRepository extends Orm implements ReservationRepositoryInterface {
@@ -13,6 +14,7 @@ public class ReservationRepository extends Orm implements ReservationRepositoryI
     {
         return Reservation.class;
     }
+
     public boolean insert(Reservation reservation) {
         return super.insert(reservation);
     }
@@ -25,7 +27,6 @@ public class ReservationRepository extends Orm implements ReservationRepositoryI
     public ArrayList<Reservation> all() {
         return super.all();
     }
-
     public Reservation getById(Integer id) {
         return ((Reservation) super.getById(id));
     }

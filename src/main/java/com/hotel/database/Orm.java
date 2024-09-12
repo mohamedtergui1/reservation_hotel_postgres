@@ -2,6 +2,7 @@ package com.hotel.database;
 
 import com.hotel.interfaces.GetId;
 
+
 import java.sql.*;
 import java.lang.reflect.Field;
 import java.util.*;
@@ -13,9 +14,10 @@ public abstract class Orm<T> {
     protected Orm() {
         this.con = PostgreSQLDatabase.getInstance("jdbc:postgresql://localhost:5432/mydatabase", "myuser", "mypassword").getConnection();
     }
-
     protected abstract Class<T> getEntityClass();
-
+    protected Set<Class<?>> manyToOneRelations() {
+        return new HashSet<>(Arrays.asList());
+    }
     private static final Set<String> ALLOWED_TYPES = new HashSet<>(Arrays.asList("int", "float", "java.lang.String", "char", "long", "double", "java.sql.Date"));
 
     public boolean insert(T obj) {
@@ -133,89 +135,89 @@ public abstract class Orm<T> {
         }
     }
 
-    public synchronized ArrayList<T> all() {
-        String tableName = getEntityClass().getSimpleName().toLowerCase();
-        String sql = generateSelectQuery(tableName, getEntityClass());
-        System.out.println("Generated SQL: " + sql);
+    public ArrayList<T> all() {
+        return all(getEntityClass(), null, null);
+    }
+
+    public ArrayList<T> all(Class<T> entityClass, String columnName, Object value) {
+        String tableName = entityClass.getSimpleName().toLowerCase();
+        String sql = generateSelectQuery(tableName, columnName);
 
         ArrayList<T> results = new ArrayList<>();
 
-        try (PreparedStatement pstmt = con.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
+        try (PreparedStatement pstmt = con.prepareStatement(sql)) {
+            if (value != null) {
+                pstmt.setObject(1, value);
+            }
 
-            while (rs.next()) {
-                T entity = getEntityClass().getDeclaredConstructor().newInstance();
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    T entity = entityClass.getDeclaredConstructor().newInstance();
 
-                for (Field field : getEntityClass().getDeclaredFields()) {
-                    field.setAccessible(true);
-                    String fieldName = field.getName();
-                    String fieldType = field.getType().getName();
+                    for (Field field : entityClass.getDeclaredFields()) {
+                        field.setAccessible(true);
+                        String fieldName = field.getName();
+                        String fieldType = field.getType().getName();
 
-                    // Determine column name based on field type
-                    String columnName = ALLOWED_TYPES.contains(fieldType) ? fieldName : fieldName.toLowerCase() + "_id";
+                        String fieldColumnName = ALLOWED_TYPES.contains(fieldType) ? fieldName : fieldName.toLowerCase() + "_id";
 
-                    // Retrieve the value from ResultSet
-                    Object value = rs.getObject(columnName);
+                        Object columnValue = rs.getObject(fieldColumnName);
 
-                    // Validate and set the value based on field type
-                    try {
-                        switch (fieldType) {
-                            case "java.lang.String":
-                                field.set(entity, value != null ? value.toString() : null);
-                                break;
-                            case "int":
-                            case "java.lang.Integer":
-                                field.set(entity, value != null ? ((Number) value).intValue() : null);
-                                break;
-                            case "double":
-                            case "java.lang.Double":
-                                field.set(entity, value != null ? ((Number) value).doubleValue() : null);
-                                break;
-                            case "float":
-                            case "java.lang.Float":
-                                field.set(entity, value != null ? ((Number) value).floatValue() : null);
-                                break;
-                            case "long":
-                            case "java.lang.Long":
-                                field.set(entity, value != null ? ((Number) value).longValue() : null);
-                                break;
-                            case "boolean":
-                            case "java.lang.Boolean":
-                                field.set(entity, value != null ? ((Boolean) value) : null);
-                                break;
-                            case "java.sql.Date":
-                                field.set(entity, value != null ? new java.sql.Date(((java.sql.Date) value).getTime()) : null);
-                                break;
-                            default:
-
-                                if (value != null) {
-                                    // Ensure that the field type is a class type
-                                    if (GetId.class.isAssignableFrom(field.getType())) {
-
-                                        Object relatedEntity = getById((Integer) value, field.getType().getName());
-                                        field.set(entity, relatedEntity);
-                                    } else {
-                                        System.err.println("Unsupported field type: " + fieldType);
+                        try {
+                            switch (fieldType) {
+                                case "java.lang.String":
+                                    field.set(entity, columnValue != null ? columnValue.toString() : null);
+                                    break;
+                                case "int":
+                                case "java.lang.Integer":
+                                    field.set(entity, columnValue != null ? ((Number) columnValue).intValue() : null);
+                                    break;
+                                case "double":
+                                case "java.lang.Double":
+                                    field.set(entity, columnValue != null ? ((Number) columnValue).doubleValue() : null);
+                                    break;
+                                case "float":
+                                case "java.lang.Float":
+                                    field.set(entity, columnValue != null ? ((Number) columnValue).floatValue() : null);
+                                    break;
+                                case "long":
+                                case "java.lang.Long":
+                                    field.set(entity, columnValue != null ? ((Number) columnValue).longValue() : null);
+                                    break;
+                                case "boolean":
+                                case "java.lang.Boolean":
+                                    field.set(entity, columnValue != null ? ((Boolean) columnValue) : null);
+                                    break;
+                                case "java.sql.Date":
+                                    field.set(entity, columnValue != null ? new java.sql.Date(((java.sql.Date) columnValue).getTime()) : null);
+                                    break;
+                                default:
+                                    if (columnValue != null) {
+                                        if (GetId.class.isAssignableFrom(field.getType())) {
+                                            Object relatedEntity = getById((Integer) columnValue, field.getType().getName());
+                                            field.set(entity, relatedEntity);
+                                        } else {
+                                            System.err.println("Unsupported field type: " + fieldType);
+                                        }
                                     }
-                                }
-                                break;
+                                    break;
+                            }
+                        } catch (Exception e) {
+                            System.err.println("Error setting field value: " + fieldName + " - " + e.getMessage());
                         }
-                    } catch (Exception e) {
-                        System.err.println("Error setting field value: " + fieldName + " - " + e.getMessage());
                     }
-                }
 
-                results.add(entity);
+                    results.add(entity);
+                }
             }
         } catch (SQLException | ReflectiveOperationException e) {
-            // Replace with a logging framework in a real application
             System.err.println("Error during query execution: " + e.getMessage());
         }
 
         return results;
     }
 
-    public synchronized  Object getById(Integer id, String className) {
+    public    Object getById(Integer id, String className) {
         if (id == null || className == null || className.isEmpty()) {
              System.err.println("Invalid id or className");
         }
@@ -224,8 +226,8 @@ public abstract class Orm<T> {
             // Convert the class name to a Class object
             Class<?> clazz = Class.forName(className);
             String tableName = clazz.getSimpleName().toLowerCase(); // Use class name as table name
-            String sql = generateSelectQuery(tableName, clazz) + " WHERE id = ?";
-            System.out.println("Generated SQL: " + sql);
+            String sql = generateSelectQuery(tableName, "id");
+
 
             // Prepare the statement
             try (PreparedStatement pstmt = con.prepareStatement(sql)) {
@@ -310,37 +312,31 @@ public abstract class Orm<T> {
         return getById(id,getEntityClass().getName());
     }
 
+    public Map<String, ArrayList<?>> loadRelations(Object object) {
+        Map<String, ArrayList<?>> loadRelations = new HashMap<>();
 
+        for (Class<?> relation : manyToOneRelations()) {
 
- //generator functions for sql query <select ,insert ,delete ,update>
-    private String generateSelectQuery(String table, Class<?> clazz) {
-        StringBuilder sql = new StringBuilder("SELECT ");
-        Field[] fields = clazz.getDeclaredFields();
-        boolean first = true;
+            if (object instanceof GetId ) {
+                Object id = ((GetId) object).getId();
 
-        for (Field field : fields) {
-            if (!first) {
-                sql.append(", ");
+                loadRelations.put(relation.getSimpleName().toLowerCase() + "s",all( (Class<T>) relation,
+                        getEntityClass().getSimpleName().toLowerCase() + "_id", id));
             }
-
-            String fieldName = field.getName();
-            String fieldType = field.getType().getName();
-
-            // Use the field name if its type is allowed; otherwise, modify the name
-            if (ALLOWED_TYPES.contains(fieldType)) {
-                sql.append(fieldName);
-            } else {
-                sql.append(fieldName.toLowerCase());
-                sql.append("_id");
-            }
-
-            first = false;
         }
-
-        sql.append(" FROM ").append(table);
-        return sql.toString();
+        return loadRelations;
     }
 
+
+    private String generateSelectQuery(String tableName, String columnName) {
+        if (columnName != null && !columnName.isEmpty()) {
+            // Generate SQL with WHERE condition
+            return "SELECT * FROM " + tableName + " WHERE " + columnName + " = ?";
+        } else {
+            // Generate SQL without WHERE condition
+            return "SELECT * FROM " + tableName;
+        }
+    }
     private String generateInsertSQL(String tableName, T obj) {
         StringBuilder sql = new StringBuilder("INSERT INTO ").append(tableName).append(" (");
         StringBuilder values = new StringBuilder(" VALUES (");
@@ -378,7 +374,6 @@ public abstract class Orm<T> {
 
         return sql.toString();
     }
-
     private String generateDeleteSQL(String tableName, T obj) {
         StringBuilder sql = new StringBuilder("DELETE FROM ").append(tableName).append(" WHERE ");
 

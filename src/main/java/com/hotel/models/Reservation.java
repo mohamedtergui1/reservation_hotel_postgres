@@ -10,6 +10,19 @@ public class Reservation implements GetId {
     private Date check_in_date; // Change to java.sql.Date
     private Date check_out_date; // Change to java.sql.Date
 
+
+
+    @Override
+    public String toString() {
+        return "{" +
+                "\n \"id\" :" + id +
+                ",\n \"room\" : " + room +
+                ",\n \"customer\" : " + customer +
+                ",\n \"check_in_date\" : " + check_in_date +
+                ",\n \"check_out_date\" : " + check_out_date +
+                "\n}";
+    }
+
     // Getters and setters for id
     public int getId() {
         return id;
@@ -55,14 +68,4 @@ public class Reservation implements GetId {
         this.check_out_date = check_out_date;
     }
 
-    @Override
-    public String toString() {
-        return "Reservation{" +
-                "id=" + id +
-                ",\n room=" + (room != null ? room.toString() : "null") +
-                ",\n customer=" + (customer != null ? customer.toString() : "null") +
-                ",\n check_in_date=" + (check_in_date != null ? check_in_date.toString() : "null") +
-                ",\n check_out_date=" + (check_out_date != null ? check_out_date.toString() : "null") +
-                "}\n";
-    }
 }

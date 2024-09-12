@@ -4,9 +4,18 @@ import com.hotel.interfaces.GetId;
 
 public class Room implements GetId {
     private int id;              // Corresponds to the "id" column in SQL table
-    private String room_number; // Changed to match the "room_number" column in SQL table
-    private String room_type;   // Changed to match the "room_type" column in SQL table
-    private float price;       // Corresponds to the "price" column in SQL table
+    private String room_number; // Matches the "room_number" column in SQL table
+    private String room_type;   // Matches the "room_type" column in SQL table
+    private float price;        // Corresponds to the "price" column in SQL table
+    private Hotel hotel;
+
+    public Hotel getHotel() {
+        return hotel;
+    }
+
+    public void setHotel(Hotel hotel) {
+        this.hotel = hotel;
+    }
 
     // Getters and setters for id
     @Override
@@ -50,11 +59,12 @@ public class Room implements GetId {
 
     @Override
     public String toString() {
-        return "Room{" +
-                "id =" + id +
-                ", room_number = '" + room_number + '\'' +
-                ", room_type = '" + room_type + '\'' +
-                ", price = " + price +
-                "}\n";
+        return "{"
+                + "\"id\": " + id + ", "
+                + "\"room_number\": \"" + room_number + "\", "
+                + "\"room_type\": \"" + room_type + "\", "
+                + "\"price\": " + price
+                + ",\"hotel\": " + hotel
+                + "}";
     }
 }

@@ -1,4 +1,4 @@
-package com.hotel.repositoryInterfaces;
+package com.hotel.dao.reservation;
 
 import com.hotel.models.Reservation;
 

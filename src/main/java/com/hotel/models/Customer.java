@@ -46,10 +46,10 @@ public class Customer implements GetId {
 
     @Override
     public String toString() {
-        return "Customer{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", email='" + email + '\'' +
-                "}\n";
+        return "{" +
+                "\"id\" : " + id +
+                ", \"name\" : " + name   +
+                ", \"email\" : " + email  +
+                "}";
     }
 }

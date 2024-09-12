@@ -1,7 +1,7 @@
-package com.hotel.services.reservation;
+package com.hotel.services;
 
-import com.hotel.repositoryInterfaces.ReservationRepositoryInterface;
 import com.hotel.models.Reservation;
+import com.hotel.dao.reservation.ReservationRepositoryInterface;
 
 import java.util.List;
 
@@ -13,16 +13,12 @@ public class ReservationService {
     public boolean addReservation(Reservation reservation) {
         return reservationRepository.insert(reservation);
     }
-    public  boolean updateReservation(Reservation reservation) {
+    public boolean updateReservation(Reservation reservation) {
             return reservationRepository.update(reservation);
     }
     public boolean deleteReservation(Reservation reservation) {
         return reservationRepository.delete(reservation);
     }
-    public List<Reservation> getAllReservations() {
-        return  reservationRepository.all();
-    }
-    public Reservation findReservationById(Integer id) {
-        return reservationRepository.getById(id);
-    }
+    public List<Reservation> getAllReservations() {return  reservationRepository.all();}
+    public Reservation findReservationById(Integer id) { return reservationRepository.getById(id); }
 }
