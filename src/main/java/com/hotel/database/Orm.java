@@ -16,7 +16,7 @@ public abstract class Orm<T> {
     }
     protected abstract Class<T> getEntityClass();
     protected Set<Class<?>> manyToOneRelations() {
-        return new HashSet<>(Arrays.asList());
+        return new HashSet<>();
     }
     private static final Set<String> ALLOWED_TYPES = new HashSet<>(Arrays.asList("int", "float", "java.lang.String", "char", "long", "double", "java.sql.Date"));
 
@@ -327,6 +327,81 @@ public abstract class Orm<T> {
         return loadRelations;
     }
 
+    public  int count()  {return count(getEntityClass(),null);}
+
+    public static String generateCountQuery(Class<?> clazz, HashMap<String, HashMap<String, ArrayList<String>>> conditions) {
+        String tableName = clazz.getSimpleName(); // Assuming the table name is the same as the class name
+
+        // Start constructing the SQL query
+        StringBuilder queryBuilder = new StringBuilder("SELECT COUNT(*) FROM ");
+        queryBuilder.append(tableName);
+
+        if ( conditions != null && !conditions.isEmpty()) {
+            Iterator<Map.Entry<String, HashMap<String, ArrayList<String>>>> outerIterator = conditions.entrySet().iterator();
+
+            while (outerIterator.hasNext()) {
+                Map.Entry<String, HashMap<String, ArrayList<String>>> outerEntry = outerIterator.next();
+                String operator = outerEntry.getKey(); // e.g., "AND" or "OR"
+                HashMap<String, ArrayList<String>> columnsMap = outerEntry.getValue();
+
+                queryBuilder.append(" WHERE ");
+
+                Iterator<Map.Entry<String, ArrayList<String>>> innerIterator = columnsMap.entrySet().iterator();
+                while (innerIterator.hasNext()) {
+                    Map.Entry<String, ArrayList<String>> innerEntry = innerIterator.next();
+                    String column = innerEntry.getKey();
+                    ArrayList<String> values = innerEntry.getValue();
+
+                    queryBuilder.append(column).append(" IN (");
+                    for (int i = 0; i < values.size(); i++) {
+                        if (i > 0) {
+                            queryBuilder.append(", ");
+                        }
+                        queryBuilder.append("?");
+                    }
+                    queryBuilder.append(")");
+
+                    if (innerIterator.hasNext()) {
+                        queryBuilder.append(" ").append(operator).append(" ");
+                    }
+                }
+
+                if (outerIterator.hasNext()) {
+                    queryBuilder.append(" ");
+                }
+            }
+        }
+        System.out.println(queryBuilder.toString());
+        return queryBuilder.toString();
+    }
+
+    public  int count(Class<?> clazz, HashMap<String, HashMap<String, ArrayList<String>>> conditions) {
+        String query = generateCountQuery(clazz, conditions);
+
+        try (
+             PreparedStatement preparedStatement = this.con.prepareStatement(query)) {
+
+            int paramIndex = 1;
+            if ( conditions != null && !conditions.isEmpty()) {
+                for (HashMap<String, ArrayList<String>> columnConditions : conditions.values()) {
+                    for (ArrayList<String> values : columnConditions.values()) {
+                        for (String value : values) {
+                            preparedStatement.setObject(paramIndex++, value);
+                        }
+                    }
+                }
+            }
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt(1); // Return the count
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return 0;
+    }
 
     private String generateSelectQuery(String tableName, String columnName) {
         if (columnName != null && !columnName.isEmpty()) {

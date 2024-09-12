@@ -2,6 +2,7 @@ package com.hotel.models;
 
 import com.hotel.interfaces.GetId;
 import java.sql.Date; // Import java.sql.Date
+import java.time.temporal.Temporal;
 
 public class Reservation implements GetId {
     private int id;
@@ -9,7 +10,6 @@ public class Reservation implements GetId {
     private Customer customer;
     private Date check_in_date; // Change to java.sql.Date
     private Date check_out_date; // Change to java.sql.Date
-
 
 
     @Override

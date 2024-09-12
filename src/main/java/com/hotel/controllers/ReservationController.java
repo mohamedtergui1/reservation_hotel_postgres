@@ -1,10 +1,19 @@
      package com.hotel.controllers;
 
+     import com.hotel.dao.room.RoomRepository;
+     import com.hotel.dao.user.CustomerRepository;
      import com.hotel.models.Customer;
      import com.hotel.models.Reservation;
      import com.hotel.models.Room;
+     import com.hotel.services.CustomerService;
      import com.hotel.services.ReservationService;
+     import com.hotel.services.RoomService;
+
      import java.sql.Date;
+     import java.time.LocalDate;
+     import java.time.temporal.ChronoUnit;
+     import java.time.temporal.Temporal;
+     import java.util.InputMismatchException;
      import java.util.List;
      import java.util.Scanner;
 
@@ -17,7 +26,7 @@
                this.scanner = new Scanner(System.in);
           }
 
-          public void index() {
+          public void index()   {
                System.out.println("Reservations List:");
                List<Reservation> reservations = reservationService.getAllReservations();
 
@@ -76,8 +85,20 @@
                System.out.print("Enter the reservation ID you want to cancel: ");
                int id = scanner.nextInt();
                scanner.nextLine();
-               boolean success = reservationService.deleteReservation(reservationService.getReservationById(id));
+               Reservation reservation = reservationService.getReservationById(id);
+               boolean success = reservationService.deleteReservation(reservation);
                if (success) {
+                    long daysBetween = ChronoUnit.DAYS.between(LocalDate.now(), (Temporal) reservation.getCheckInDate());
+                    Customer customer = reservation.getCustomer();
+                    if (daysBetween < 4)
+                    {
+                         customer.setWallet(customer.getWallet() + reservation.getRoom().getPrice());
+                         new CustomerService(new CustomerRepository()).updateCustomer(customer);
+                    }
+                    else{
+                         customer.setWallet(customer.getWallet() + (reservation.getRoom().getPrice() * ((float) 8 /10)));
+                         new CustomerService(new CustomerRepository()).updateCustomer(customer);
+                    }
                     System.out.println("Reservation with ID " + id + " has been canceled successfully.");
                } else {
                     System.out.println("Reservation with ID " + id + " not found.");
@@ -105,25 +126,85 @@
           }
 
           private void populateReservationDetails(Reservation reservation) {
-               System.out.print("Enter room details (e.g., Room number): ");
-               Room room = new Room();
-               room.setId(scanner.nextInt());
-               scanner.nextLine();
-               reservation.setRoom(room);
+               Room room = null;
+               Customer customer = null;
 
-               System.out.print("Enter customer details (e.g., Customer name): ");
+               // Validate Room ID
+               while (room == null) {
+                    try {
+                         System.out.print("Enter room ID: ");
+                         int roomId = scanner.nextInt();
+                         scanner.nextLine(); // Consume newline
 
-               Customer customer = reservation.getCustomer();
-               customer.setId(scanner.nextInt());
-               scanner.nextLine();
-               reservation.setCustomer(customer);
+                         room = new RoomService(new RoomRepository()).getById(roomId);
+                         if (room == null) {
+                              System.out.println("Room with ID " + roomId + " not found. Please enter a valid room ID.");
+                         } else {
+                              reservation.setRoom(room);
+                         }
+                    } catch (InputMismatchException e) {
+                         System.out.println("Invalid input. Please enter a numeric value for room ID.");
+                         scanner.nextLine(); // Clear the invalid input
+                    }
+               }
 
-               System.out.print("Enter check-in date (yyyy-mm-dd): ");
-               String checkInDateInput = scanner.nextLine();
-               reservation.setCheckInDate(Date.valueOf(checkInDateInput));
+               // Validate Customer ID
+               while (customer == null) {
+                    try {
+                         System.out.print("Enter customer ID: ");
+                         int customerId = scanner.nextInt();
+                         scanner.nextLine(); // Consume newline
 
-               System.out.print("Enter check-out date (yyyy-mm-dd): ");
-               String checkOutDateInput = scanner.nextLine();
-               reservation.setCheckOutDate(Date.valueOf(checkOutDateInput));
+                         customer = new CustomerService(new CustomerRepository()).getCustomer(customerId);
+                         if (customer == null) {
+                              System.out.println("Customer with ID " + customerId + " not found. Please enter a valid customer ID.");
+                         } else {
+                              reservation.setCustomer(customer);
+                         }
+                    } catch (InputMismatchException e) {
+                         System.out.println("Invalid input. Please enter a numeric value for customer ID.");
+                         scanner.nextLine(); // Clear the invalid input
+                    }
+               }
+
+               // Validate Check-In Date
+               Date checkInDate = null;
+               while (checkInDate == null) {
+                    try {
+                         System.out.print("Enter check-in date (yyyy-MM-dd): ");
+                         String checkInDateInput = scanner.nextLine();
+                         checkInDate = Date.valueOf(checkInDateInput);
+
+                         // Check if the date is valid
+                         if (checkInDate.before(new Date(System.currentTimeMillis()))) {
+                              System.out.println("Check-in date cannot be in the past. Please enter a valid date.");
+                              checkInDate = null;
+                         } else {
+                              reservation.setCheckInDate(checkInDate);
+                         }
+                    } catch (IllegalArgumentException e) {
+                         System.out.println("Invalid date format. Please enter the date in yyyy-MM-dd format.");
+                    }
+               }
+
+               // Validate Check-Out Date
+               Date checkOutDate = null;
+               while (checkOutDate == null) {
+                    try {
+                         System.out.print("Enter check-out date (yyyy-MM-dd): ");
+                         String checkOutDateInput = scanner.nextLine();
+                         checkOutDate = Date.valueOf(checkOutDateInput);
+
+                         // Check if the date is valid
+                         if (checkOutDate.before(checkInDate)) {
+                              System.out.println("Check-out date must be after check-in date. Please enter a valid date.");
+                              checkOutDate = null;
+                         } else {
+                              reservation.setCheckOutDate(checkOutDate);
+                         }
+                    } catch (IllegalArgumentException e) {
+                         System.out.println("Invalid date format. Please enter the date in yyyy-MM-dd format.");
+                    }
+               }
           }
      }

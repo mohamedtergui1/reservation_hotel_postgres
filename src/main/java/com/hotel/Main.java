@@ -6,11 +6,12 @@ import com.hotel.dao.room.RoomRepository;
 import com.hotel.models.Reservation;
 import com.hotel.services.ReservationService;
 
+import java.sql.SQLException;
 import java.util.*;
 
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args)  {
 
         System.out.println("HOTELS Reservation Management");
         Scanner scanner = new Scanner(System.in);
@@ -29,7 +30,7 @@ public class Main {
                switch (i)
                {
                    case 1:
-                       new ReservationController(new ReservationService(new ReservationRepository())).index();
+                       new ReservationController(new ReservationService(new ReservationRepository(), new ReservationRepository())).index();
                        break;
                }
            } while (5 != i);

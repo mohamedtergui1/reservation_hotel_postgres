@@ -7,6 +7,18 @@ public class Customer implements GetId {
     private String name;
     private String password;
     private int id;
+    private float wallet;
+
+
+    public float getWallet() {
+        return wallet;
+    }
+
+    public void setWallet(float wallet) {
+        this.wallet = wallet;
+    }
+
+
 
     @Override
     public int getId() {
@@ -50,6 +62,7 @@ public class Customer implements GetId {
                 "  \"id\": " + id + ",\n" +
                 "  \"name\": \"" + (name != null ? name.replace("\"", "\\\"") : "null") + "\",\n" +
                 "  \"email\": \"" + (email != null ? email.replace("\"", "\\\"") : "null") + "\"\n" +
+                "  \"wallet\": \"" +  wallet + "\"\n" +
                 "}";
     }
 
