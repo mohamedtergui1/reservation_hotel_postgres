@@ -61,10 +61,11 @@ public class Room implements GetId {
     public String toString() {
         return "{"
                 + "\"id\": " + id + ", "
-                + "\"room_number\": \"" + room_number + "\", "
-                + "\"room_type\": \"" + room_type + "\", "
-                + "\"price\": " + price
-                + ",\"hotel\": " + hotel
+                + "\"room_number\": " + "\"" + room_number + "\"" + ", "
+                + "\"room_type\": " + "\"" + room_type + "\"" + ", "
+                + "\"price\": " + price + ", "
+                + "\"hotel\": " + "\"" + hotel + "\""
                 + "}";
     }
+
 }

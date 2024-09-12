@@ -14,14 +14,15 @@ public class Reservation implements GetId {
 
     @Override
     public String toString() {
-        return "{" +
-                "\n \"id\" :" + id +
-                ",\n \"room\" : " + room +
-                ",\n \"customer\" : " + customer +
-                ",\n \"check_in_date\" : " + check_in_date +
-                ",\n \"check_out_date\" : " + check_out_date +
-                "\n}";
+        return "{\n" +
+                "  \"id\": " + id + ",\n" +
+                "  \"room\": " + (room != null ? "\"" + room + "\"" : "null") + ",\n" +
+                "  \"customer\": " + (customer != null ? "\"" + customer + "\"" : "null") + ",\n" +
+                "  \"check_in_date\": " + (check_in_date != null ? "\"" + check_in_date + "\"" : "null") + ",\n" +
+                "  \"check_out_date\": " + (check_out_date != null ? "\"" + check_out_date + "\"" : "null") + "\n" +
+                "}";
     }
+
 
     // Getters and setters for id
     public int getId() {

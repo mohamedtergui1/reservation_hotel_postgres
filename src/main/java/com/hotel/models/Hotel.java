@@ -24,9 +24,11 @@ public class Hotel implements GetId {
 
     @Override
     public String toString() {
-        return "{"
-                + "\"id\": " + id + ", "
-                + "\"name\": \"" + name + "\""
-                + "}";
+        return "{\n" +
+                "  \"id\": " + id + ",\n" +
+                "  \"name\": \"" + name.replace("\"", "\\\"") + "\"\n" +
+                "}";
     }
+
+
 }

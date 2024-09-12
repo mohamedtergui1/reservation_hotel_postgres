@@ -19,6 +19,6 @@ public class ReservationService {
     public boolean deleteReservation(Reservation reservation) {
         return reservationRepository.delete(reservation);
     }
-    public List<Reservation> getAllReservations() {return  reservationRepository.all();}
-    public Reservation findReservationById(Integer id) { return reservationRepository.getById(id); }
+    public List<Reservation> getAllReservations() { return  reservationRepository.all(); }
+    public Reservation getReservationById(Integer id) { return reservationRepository.getById(id); }
 }

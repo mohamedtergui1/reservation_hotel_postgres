@@ -12,19 +12,7 @@ import java.util.*;
 public class Main {
     public static void main(String[] args) {
 
-
-        RoomRepository roomRepository = new RoomRepository();
-        ReservationRepository reservationRepository = new ReservationRepository();
-         List<Reservation> reservations = (List<Reservation>) roomRepository.loadRelations(reservationRepository.getById(1)).get("reservations");
-         if(reservations != null && !reservations.isEmpty())
-         {
-             for (Reservation reservation : reservations) {
-                 System.out.println(reservation);
-             }
-         }
-
-
-        System.out.println("HOTEL Reservation Management");
+        System.out.println("HOTELS Reservation Management");
         Scanner scanner = new Scanner(System.in);
         int i;
            System.out.println("menu");
@@ -44,6 +32,6 @@ public class Main {
                        new ReservationController(new ReservationService(new ReservationRepository())).index();
                        break;
                }
-           } while (5 != i );
+           } while (5 != i);
     }
 }
