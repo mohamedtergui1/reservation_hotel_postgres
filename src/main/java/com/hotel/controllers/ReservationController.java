@@ -8,11 +8,9 @@
      import com.hotel.services.CustomerService;
      import com.hotel.services.ReservationService;
      import com.hotel.services.RoomService;
-
      import java.sql.Date;
      import java.time.LocalDate;
      import java.time.temporal.ChronoUnit;
-     import java.time.temporal.Temporal;
      import java.util.InputMismatchException;
      import java.util.List;
      import java.util.Scanner;
@@ -63,6 +61,9 @@
                          editReservation();
                          break;
                     case 4:
+                         statisticReservaition();
+                         break;
+                    case 5:
                          System.out.println("Exiting...");
                          break;
                     default:
@@ -85,9 +86,9 @@
                int id = scanner.nextInt();
                scanner.nextLine();
                Reservation reservation = reservationService.getReservationById(id);
-               boolean success = reservationService.deleteReservation(reservation);
+               boolean success = reservationService.cancelReservation(reservation);
                if (success) {
-                    long daysBetween = ChronoUnit.DAYS.between(LocalDate.now(), (Temporal) reservation.getCheckInDate());
+                    long daysBetween = daysBetweenNow(reservation.getCheckInDate(),Date.valueOf(LocalDate.now())); // gimr function that take Date type
                     Customer customer = reservation.getCustomer();
                     if (daysBetween < 4)
                     {
@@ -95,7 +96,7 @@
                          new CustomerService(new CustomerRepository()).updateCustomer(customer);
                     }
                     else{
-                         customer.setWallet(customer.getWallet() + (reservation.getRoom().getPrice() * ((float) 8 /10)));
+                         customer.setWallet(customer.getWallet() + (reservation.getRoom().getPrice() * daysBetweenNow(reservation.getCheckInDate(),reservation.getCheckOutDate()) *((float) 8 /10)));
                          new CustomerService(new CustomerRepository()).updateCustomer(customer);
                     }
                     System.out.println("Reservation with ID " + id + " has been canceled successfully.");
@@ -131,7 +132,7 @@
                     try {
                          System.out.print("Enter room ID: ");
                          int roomId = scanner.nextInt();
-                         scanner.nextLine(); // Consume newline
+                         scanner.nextLine();
 
                          room = new RoomService(new RoomRepository()).getById(roomId);
                          if (room == null) {
@@ -141,16 +142,16 @@
                          }
                     } catch (InputMismatchException e) {
                          System.out.println("Invalid input. Please enter a numeric value for room ID.");
-                         scanner.nextLine(); // Clear the invalid input
+                         scanner.nextLine();
                     }
                }
 
-               // Validate Customer ID
+
                while (customer == null) {
                     try {
                          System.out.print("Enter customer ID: ");
                          int customerId = scanner.nextInt();
-                         scanner.nextLine(); // Consume newline
+                         scanner.nextLine();
 
                          customer = new CustomerService(new CustomerRepository()).getCustomer(customerId);
                          if (customer == null) {
@@ -158,13 +159,14 @@
                          } else {
                               reservation.setCustomer(customer);
                          }
+
                     } catch (InputMismatchException e) {
                          System.out.println("Invalid input. Please enter a numeric value for customer ID.");
-                         scanner.nextLine(); // Clear the invalid input
+                         scanner.nextLine();
                     }
                }
 
-               // Validate Check-In Date
+
                Date checkInDate = null;
                while (checkInDate == null) {
                     try {
@@ -172,7 +174,7 @@
                          String checkInDateInput = scanner.nextLine();
                          checkInDate = Date.valueOf(checkInDateInput);
 
-                         // Check if the date is valid
+
                          if (checkInDate.before(new Date(System.currentTimeMillis()))) {
                               System.out.println("Check-in date cannot be in the past. Please enter a valid date.");
                               checkInDate = null;
@@ -184,7 +186,7 @@
                     }
                }
 
-               // Validate Check-Out Date
+
                Date checkOutDate = null;
                while (checkOutDate == null) {
                     try {
@@ -192,7 +194,6 @@
                          String checkOutDateInput = scanner.nextLine();
                          checkOutDate = Date.valueOf(checkOutDateInput);
 
-                         // Check if the date is valid
                          if (checkOutDate.before(checkInDate)) {
                               System.out.println("Check-out date must be after check-in date. Please enter a valid date.");
                               checkOutDate = null;
@@ -208,5 +209,17 @@
           {
                 System.out.println("statistic");
                 System.out.println("number of reservations: " + reservationService.count());
+          }
+          public static long daysBetweenNow(Date date1 , Date date2) {
+               // Convert java.sql.Date to LocalDate
+               LocalDate date_1 = date1.toLocalDate();
+
+               LocalDate date_2 = date2.toLocalDate();
+
+               // Get current date
+
+
+               // Calculate the number of days between the current date and the given date
+               return ChronoUnit.DAYS.between(date_1, date_2);
           }
      }

@@ -4,18 +4,15 @@ import com.hotel.database.Orm;
 import com.hotel.models.Reservation;
 import com.hotel.models.Room;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class RoomRepository extends Orm implements RoomRepositoryInterface  {
     public Class getEntityClass() {
         return Room.class;
     }
     @Override
-    protected Set<Class<?>> manyToOneRelations() {
-        return new HashSet<>(Arrays.asList(Reservation.class));
+    protected Set<Class<?>> manyRelations() {
+        return new HashSet<>(List.of(Reservation.class));
     }
     public boolean insert(Room room){return super.insert(room);}
     public boolean update(Room room){return super.update(room);}

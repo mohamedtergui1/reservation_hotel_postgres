@@ -6,6 +6,7 @@ import com.hotel.models.Reservation;
 import com.hotel.dao.reservation.ReservationRepositoryInterface;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ReservationService {
     private ReservationRepositoryInterface reservationRepository;
@@ -22,8 +23,16 @@ public class ReservationService {
     public boolean updateReservation(Reservation reservation) {
             return reservationRepository.update(reservation);
     }
-    public boolean deleteReservation(Reservation reservation) { return reservationRepository.delete(reservation); }
-    public List<Reservation> getAllReservations()  { return  reservationRepository.all(); }
+    public boolean cancelReservation(Reservation reservation) {
+        if(reservation.getIs_cancelled())
+            return false;
+        reservation.setIs_cancelled(true);
+        return reservationRepository.update(reservation); }
     public Reservation getReservationById(Integer id) { return reservationRepository.getById(id); }
     public int count(){ return reservationCount.count(); }
+    public List<Reservation> getAllReservations() {
+        return reservationRepository.all().stream()
+                .filter(reservation -> !reservation.getIs_cancelled())
+                .collect(Collectors.toUnmodifiableList());
+    }
 }

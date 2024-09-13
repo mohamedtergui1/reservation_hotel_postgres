@@ -1,14 +1,12 @@
 package com.hotel;
 
+import com.hotel.controllers.CustomerController;
 import com.hotel.controllers.ReservationController;
 import com.hotel.dao.reservation.ReservationRepository;
-import com.hotel.dao.room.RoomRepository;
-import com.hotel.models.Reservation;
+import com.hotel.dao.user.CustomerRepository;
+import com.hotel.services.CustomerService;
 import com.hotel.services.ReservationService;
-
-import java.sql.SQLException;
 import java.util.*;
-
 
 public class Main {
     public static void main(String[] args)  {
@@ -31,6 +29,13 @@ public class Main {
                {
                    case 1:
                        new ReservationController(new ReservationService(new ReservationRepository(), new ReservationRepository(),new ReservationRepository())).index();
+                       break;
+                   case  2:
+                       break;
+                   case  3:
+                       break;
+                   case  4:
+                       new CustomerController(new CustomerService(new CustomerRepository(),new CustomerRepository())).index();
                        break;
                }
            } while (5 != i);

@@ -15,10 +15,10 @@ public abstract class Orm<T> {
         this.con = PostgreSQLDatabase.getInstance("jdbc:postgresql://localhost:5432/mydatabase", "myuser", "mypassword").getConnection();
     }
     protected abstract Class<T> getEntityClass();
-    protected Set<Class<?>> manyToOneRelations() {
+    protected Set<Class<?>> manyRelations() {
         return new HashSet<>();
     }
-    private static final Set<String> ALLOWED_TYPES = new HashSet<>(Arrays.asList("int", "float", "java.lang.String", "char", "long", "double", "java.sql.Date"));
+    private static final Set<String> ALLOWED_TYPES = new HashSet<>(Arrays.asList("int","boolean" , "float", "java.lang.String", "char", "long", "double", "java.sql.Date"));
 
     public boolean insert(T obj) {
         if (obj == null) {
@@ -315,7 +315,7 @@ public abstract class Orm<T> {
     public Map<String, ArrayList<?>> loadRelations(Object object) {
         Map<String, ArrayList<?>> loadRelations = new HashMap<>();
 
-        for (Class<?> relation : manyToOneRelations()) {
+        for (Class<?> relation : manyRelations()) {
 
             if (object instanceof GetId ) {
                 Object id = ((GetId) object).getId();
