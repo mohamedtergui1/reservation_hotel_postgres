@@ -30,7 +30,7 @@ public class Main {
                switch (i)
                {
                    case 1:
-                       new ReservationController(new ReservationService(new ReservationRepository(), new ReservationRepository())).index();
+                       new ReservationController(new ReservationService(new ReservationRepository(), new ReservationRepository(),new ReservationRepository())).index();
                        break;
                }
            } while (5 != i);

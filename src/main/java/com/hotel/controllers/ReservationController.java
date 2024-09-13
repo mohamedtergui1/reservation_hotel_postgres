@@ -45,11 +45,12 @@
                System.out.println("1. Add Reservation");
                System.out.println("2. Cancel Reservation");
                System.out.println("3. Edit Reservation");
-               System.out.println("4. Exit");
-               System.out.print("Please select an option (1-4): ");
+               System.out.println("4. Statistic Reservation");
+               System.out.println("5. Exit");
+               System.out.print("Please select an option (1-5): ");
 
                int choice = scanner.nextInt();
-               scanner.nextLine(); // Consume newline
+               scanner.nextLine();
 
                switch (choice) {
                     case 1:
@@ -73,10 +74,8 @@
 
           private void addReservation() {
                System.out.println("Please provide the following details to add a new reservation:");
-
                Reservation reservation = new Reservation();
                populateReservationDetails(reservation);
-
                reservationService.addReservation(reservation);
                System.out.println("Reservation has been added successfully.");
           }
@@ -115,9 +114,7 @@
                     System.out.println("Current details of reservation ID " + id + ":");
                     System.out.println(reservation);
                     System.out.println("Please provide new details:");
-
                     populateReservationDetails(reservation);
-
                     reservationService.updateReservation(reservation);
                     System.out.println("Reservation has been updated successfully.");
                } else {
@@ -206,5 +203,10 @@
                          System.out.println("Invalid date format. Please enter the date in yyyy-MM-dd format.");
                     }
                }
+          }
+          public void statisticReservaition()
+          {
+                System.out.println("statistic");
+                System.out.println("number of reservations: " + reservationService.count());
           }
      }
